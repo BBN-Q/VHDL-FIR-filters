@@ -23,9 +23,14 @@ use IEEE.NUMERIC_STD.ALL;
 use work.DataTypes.all;
 -- synthesis translate on
 
+
 entity FIR_DirectTranspose is
   generic(
-    coeffs : integer_vector := (2,3,4,5,6);
+    --Default low-pass filter
+    -- import scipy.signal
+    -- br = scipy.signal.remez(16, [0,0.1,0.2,0.5], [1,0])
+    -- np.round(2**17 * br)
+    coeffs : integer_vector := (2179, -913,  -4461,  -6364,  -1880,  10550,  26609, 37955,  37955,  26609,  10550,  -1880,  -6364, -4461, -913, 2179);
     data_in_width : natural := 16
   );
   port (
@@ -55,7 +60,7 @@ begin
   main : process(clk)
   begin
     if rising_edge(clk) then
-      --register input data adn convert to signed for DSP slice
+      --register input data and convert to signed for DSP slice
       data_in_d <= signed(data_in);
 
       --Multiply by coeffs and chain the sum
