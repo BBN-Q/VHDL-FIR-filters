@@ -37,6 +37,8 @@ signal finished : boolean := false;
 signal data_in : std_logic_vector(15 downto 0) := (others => '0');
 signal data_out : std_logic_vector(47 downto 0);
 
+constant scale : real := real(2 ** 15) - 1.0;
+
 begin
 
   dut : entity work.FIR_DirectTranspose
@@ -57,7 +59,7 @@ begin
 
     wait until rising_edge(clk);
     sampleDriver : for ct in 0 to chirp'high loop
-      data_in <= std_logic_vector(to_signed(chirp(ct), 16));
+      data_in <= std_logic_vector(to_signed(integer(scale*chirp(ct)), 16));
       wait until rising_edge(clk);
     end loop;
     data_in <= (others => '0');
