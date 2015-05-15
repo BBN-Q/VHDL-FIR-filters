@@ -24,11 +24,10 @@ use ieee_proposed.standard_additions.all;
 
 entity FIR_DirectTranspose is
   generic(
-    --Default low-pass filter
+    --Default 1/4 band low-pass filter generated in Python with
     -- import scipy.signal
     -- br = scipy.signal.remez(16, [0,0.1,0.2,0.5], [1,0])
-    -- np.round(2**17 * br)
-    coeffs : integer_vector := (2179, -913,  -4461,  -6364,  -1880,  10550,  26609, 37955,  37955,  26609,  10550,  -1880,  -6364, -4461, -913, 2179);
+    coeffs : real_vector := (0.01662606, -0.00696415, -0.03403663, -0.04855056, -0.01434685, 0.08048669,  0.20301046,  0.28957738,  0.28957738,  0.20301046, 0.08048669, -0.01434685, -0.04855056, -0.03403663, -0.00696415, 0.01662606);
     data_in_width : natural := 16
   );
   port (
@@ -53,6 +52,8 @@ attribute use_dsp48 of chainedSum : signal is "yes";
 
 signal data_in_d : signed(data_in_width-1 downto 0) := (others => '0');
 
+constant COEFF_SCALE : real := real(2 ** 17);
+
 begin
 
   main : process(clk)
@@ -63,10 +64,10 @@ begin
 
       --Multiply by coeffs and chain the sum
       --We resize to 18 bits because the DSP slices offer 18x25 bit multipliers
-      chainedSum(0) <= resize(data_in_d * to_signed(coeffs(coeffs'high),18), 48);
+      chainedSum(0) <= resize(data_in_d * to_signed(integer(COEFF_SCALE*coeffs(coeffs'high)),18), 48);
 
       sumLooper : for ct in 1 to NUM_TAPS-1 loop
-        chainedSum(ct) <= resize(data_in_d * to_signed(coeffs(coeffs'high-ct),18), 48) + chainedSum(ct-1);
+        chainedSum(ct) <= resize(data_in_d * to_signed(integer(COEFF_SCALE*coeffs(coeffs'high-ct)),18), 48) + chainedSum(ct-1);
       end loop;
 
       data_out <= std_logic_vector(chainedSum(chainedSum'high));
