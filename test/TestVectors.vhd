@@ -1,4 +1,5 @@
-use work.DataTypes.all;
+library ieee_proposed;
+use ieee_proposed.standard_additions.all;
 
 package TestVectors is
 
