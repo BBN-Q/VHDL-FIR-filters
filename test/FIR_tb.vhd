@@ -19,7 +19,8 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-use work.DataTypes.all;
+library ieee_proposed;
+use ieee_proposed.standard_additions.all;
 use work.TestVectors.all;
 
 entity FIR_tb is

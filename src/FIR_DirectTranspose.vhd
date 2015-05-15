@@ -19,10 +19,8 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
--- synthesis translate off
-use work.DataTypes.all;
--- synthesis translate on
-
+library ieee_proposed;
+use ieee_proposed.standard_additions.all;
 
 entity FIR_DirectTranspose is
   generic(
@@ -48,12 +46,12 @@ constant NUM_TAPS : natural := coeffs'length;
 
 type chainedSum_t is array(0 to NUM_TAPS-1) of signed(47 downto 0);
 signal chainedSum : chainedSum_t := (others => (others => '0'));
-
-signal data_in_d : signed(data_in_width-1 downto 0) := (others => '0');
 --Vivado does not infer DSP for constant multiplier so force DSP
 -- see http://www.xilinx.com/support/answers/60913.html
 attribute use_dsp48 : string;
 attribute use_dsp48 of chainedSum : signal is "yes";
+
+signal data_in_d : signed(data_in_width-1 downto 0) := (others => '0');
 
 begin
 
