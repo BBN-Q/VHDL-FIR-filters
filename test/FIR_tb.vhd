@@ -36,14 +36,14 @@ signal clk : std_logic := '0';
 signal finished : boolean := false;
 
 signal data_in : std_logic_vector(15 downto 0) := (others => '0');
-signal data_out : std_logic_vector(47 downto 0);
+signal data_out : std_logic_vector(15 downto 0);
 
 constant scale : real := real(2 ** 15) - 1.0;
 
 begin
 
   dut : entity work.FIR_DirectTranspose
-    generic map(coeffs => coeffs, data_in_width=>16)
+    generic map(coeffs => coeffs, data_in_width=>16, data_out_width=>16)
     port map (
       rst => rst,
       clk => clk,
