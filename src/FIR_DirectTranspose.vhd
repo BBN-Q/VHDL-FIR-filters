@@ -22,6 +22,8 @@ use IEEE.NUMERIC_STD.ALL;
 library ieee_proposed;
 use ieee_proposed.standard_additions.all;
 
+use work.CoeffHelpers.all;
+
 entity FIR_DirectTranspose is
   generic(
     --Default 1/4 band low-pass filter generated in Python with
@@ -54,14 +56,17 @@ attribute use_dsp48 of chainedSum : signal is "yes";
 signal data_in_d : signed(data_in_width-1 downto 0) := (others => '0');
 
 --We resize to 18 bits because the DSP slices offer 18x25 bit multipliers
-constant COEFF_SCALE : real := real(2 ** 17);
+constant COEFF_SCALE_BITS : integer := optimum_scaling(coeffs);
+constant COEFF_SCALE : real := real(2 ** (17 - COEFF_SCALE_BITS));
+constant SCALED_COEFFS : integer_vector := scale_coeffs(coeffs, COEFF_SCALE);
 
 --we resize the sum to 48 bits because the DSP slices offer 48 bit adder accumulators
+--If we assume the coefficients are normalized then we don't need to worry about overflow in the addition
 constant SUM_NUM_BITS : natural := 48;
 
 --The multiplication gives us 18 + data_in_width - 1 bits
---If we assume the coefficients are normalized then we don't need to worry about overflow
-constant TOP_OUTPUT_BIT : natural := SUM_NUM_BITS - 1 - (48 - (18 + data_in_width - 1));
+--We also need to undo the coefficients' scaling
+constant TOP_OUTPUT_BIT : natural := 18 + data_in_width - 2 - COEFF_SCALE_BITS;
 constant BOTTOM_OUTPUT_BIT : natural := TOP_OUTPUT_BIT - data_out_width + 1;
 
 begin
@@ -73,10 +78,10 @@ begin
       data_in_d <= signed(data_in);
 
       --Multiply by coeffs and chain the sum
-      chainedSum(0) <= resize(data_in_d * to_signed(integer(COEFF_SCALE*coeffs(coeffs'high)),18), SUM_NUM_BITS);
+      chainedSum(0) <= resize(data_in_d * to_signed(SCALED_COEFFS'high,18), SUM_NUM_BITS);
 
       sumLooper : for ct in 1 to NUM_TAPS-1 loop
-        chainedSum(ct) <= resize(data_in_d * to_signed(integer(COEFF_SCALE*coeffs(coeffs'high-ct)),18), SUM_NUM_BITS) + chainedSum(ct-1);
+        chainedSum(ct) <= resize(data_in_d * to_signed(SCALED_COEFFS(SCALED_COEFFS'high-ct),18), SUM_NUM_BITS) + chainedSum(ct-1);
       end loop;
 
       --Slice out the appropriate portion of the output - for now just truncate LSB
