@@ -78,7 +78,7 @@ begin
       data_in_d <= signed(data_in);
 
       --Multiply by coeffs and chain the sum
-      chainedSum(0) <= resize(data_in_d * to_signed(SCALED_COEFFS'high,18), SUM_NUM_BITS);
+      chainedSum(0) <= resize(data_in_d * to_signed(SCALED_COEFFS(SCALED_COEFFS'high),18), SUM_NUM_BITS);
 
       sumLooper : for ct in 1 to NUM_TAPS-1 loop
         chainedSum(ct) <= resize(data_in_d * to_signed(SCALED_COEFFS(SCALED_COEFFS'high-ct),18), SUM_NUM_BITS) + chainedSum(ct-1);
