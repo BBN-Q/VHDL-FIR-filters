@@ -45,7 +45,7 @@ constant DATA_IN_SCALE : real := real(2 ** (DATA_IN_WIDTH-1)) - 1.0;
 constant DATA_OUT_WIDTH : natural := 16;
 constant DATA_OUT_SCALE : real := real(2 ** (DATA_OUT_WIDTH-1)) - 1.0;
 
-constant FILTER_DELAY : natural := 2;
+constant FILTER_DELAY : natural := 1;
 
 begin
 

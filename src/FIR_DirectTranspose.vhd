@@ -84,9 +84,10 @@ begin
         chainedSum(ct) <= resize(data_in_d * to_signed(SCALED_COEFFS(SCALED_COEFFS'high-ct),18), SUM_NUM_BITS) + chainedSum(ct-1);
       end loop;
 
-      --Slice out the appropriate portion of the output - for now just truncate LSB
-      data_out <= std_logic_vector(chainedSum(chainedSum'high)(TOP_OUTPUT_BIT downto BOTTOM_OUTPUT_BIT));
     end if;
   end process;
+
+  --Slice out the appropriate portion of the output - for now just truncate LSB
+  data_out <= std_logic_vector(chainedSum(chainedSum'high)(TOP_OUTPUT_BIT downto BOTTOM_OUTPUT_BIT));
 
 end Behavioral;
