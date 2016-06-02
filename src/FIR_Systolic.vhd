@@ -10,18 +10,17 @@
 ----------------------------------------------------------------------------------
 
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
--- synthesis translate off
-use work.DataTypes.all;
--- synthesis translate on
+library ieee_proposed;
+use ieee_proposed.standard_additions.all;
 
 entity FIR_Systolic is
   generic(
