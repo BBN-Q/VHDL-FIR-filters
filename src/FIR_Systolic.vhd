@@ -40,6 +40,9 @@ architecture Behavioral of FIR_Systolic is
 
 constant NUM_TAPS : natural := coeffs'length;
 
+type multRegs_t is array(0 to NUM_TAPS-1) of signed(42 downto 0); -- MREG is 43 bits
+signal multRegs : multRegs_t := (others => (others => '0'));
+
 type chainedSum_t is array(0 to NUM_TAPS-1) of signed(47 downto 0);
 signal chainedSum : chainedSum_t := (others => (others => '0'));
 
@@ -68,12 +71,17 @@ begin
         dataRegs_2(ct) <= dataRegs_1(ct);
       end loop;
 
+      -- DSP48 coeff and mreg widths are 18 and 43 bits respectively
+      multRegs(0) <= resize(data_in_d * to_signed(coeffs(0), 18), 43);
+      multLooper : for ct in 1 to NUM_TAPS-1 loop
+        multRegs(ct) <= resize(dataRegs_2(ct-1) * to_signed(coeffs(ct), 18), 43);
+      end loop;
+
       --Multiply by coeffs and chain the sum
       --We resize to 18 bits because the DSP slices offer 18x25 bit multipliers
-      chainedSum(0) <= resize(data_in_d * to_signed(coeffs(0),18), 48);
-
+      chainedSum(0) <= resize(multRegs(0), 48);
       sumLooper : for ct in 1 to NUM_TAPS-1 loop
-        chainedSum(ct) <= resize(dataRegs_2(ct-1) * to_signed(coeffs(ct),18), 48) + chainedSum(ct-1);
+        chainedSum(ct) <= resize(multRegs(ct) + chainedSum(ct-1), 48);
       end loop;
 
       --register out
