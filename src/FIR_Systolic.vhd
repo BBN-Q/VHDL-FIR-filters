@@ -52,8 +52,8 @@ signal data_in_d : signed(data_in_width-1 downto 0);
 
 --Vivado does not infer DSP for constant multiplier so force DSP
 -- see http://www.xilinx.com/support/answers/60913.html
-attribute use_dsp48 : string;
-attribute use_dsp48 of chainedSum : signal is "yes";
+attribute use_dsp : string;
+attribute use_dsp of chainedSum, multRegs : signal is "yes";
 
 begin
 
